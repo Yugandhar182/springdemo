@@ -1,9 +1,15 @@
-FROM tomcat:9.0
+#
+# Build stage
+#
+FROM maven:3.8.2-jdk-11 AS build
+COPY . .
+RUN mvn clean package -DskipTests
 
-RUN rm -rf /usr/local/tomcat/webapps/*
-
-COPY *.war /usr/local/tomcat/webapps
-
+#
+# Package stage
+#
+FROM openjdk:11-jdk-slim
+COPY --from=build /target/demo-0.0.1-SNAPSHOT.jar demo.jar
+# ENV PORT=8080
 EXPOSE 8080
-
-CMD ["catalina.sh", "run"]
+ENTRYPOINT ["java","-jar","demo.jar"]
