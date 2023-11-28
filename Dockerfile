@@ -1,5 +1,14 @@
-FROM eclipse-temurin:17-jdk-alpine
-VOLUME /tmp
-COPY target/*.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
-EXPOSE 8080
+FROM adoptopenjdk/openjdk11:alpine
+
+
+# Add the service itself
+ARG JAR_FILE="myservice-1.0.0.jar"
+RUN apk add maven
+WORKDIR /app
+COPY . /app/
+RUN mvn -f /app/pom.xml clean install -DskipTests
+WORKDIR /app
+RUN cp target/${JAR_FILE} /usr/share/${JAR_FILE}
+
+ENTRYPOINT ["java", "-jar", "/usr/share/myservice-1.0.0.jar"]
+------ end snip -------
